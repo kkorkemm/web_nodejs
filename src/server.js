@@ -12,6 +12,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // Подключаем маршруты комнат
 app.use('/api/rooms', require('./routes/room'));
 app.use('/api/users', require('./routes/user'));
+app.use('/api/bookings', require('./routes/booking'));
 
 // Единый обработчик ошибок
 app.use((err, _req, res, _next) => {
