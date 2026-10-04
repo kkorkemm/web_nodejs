@@ -11,11 +11,12 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Подключаем маршруты комнат
 app.use('/api/rooms', require('./routes/room'));
+app.use('/api/users', require('./routes/user'));
 
-// Единый обработчик ошибок (должен идти последним)
+// Единый обработчик ошибок
 app.use((err, _req, res, _next) => {
   console.error(err);
-  res.status(500).json({ error: 'Internal Server Error' });
+  res.status(500).json({ error: 'Ошибка 500' });
 });
 
 const PORT = 3000;
