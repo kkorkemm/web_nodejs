@@ -1,8 +1,54 @@
 <!doctype html>
 <html lang="ru">
-<head><meta charset="utf-8"><title>Переговорные комнаты</title></head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Бронирование переговорных</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-  <h1>Система бронирования переговорных комнат</h1>
-  <p>Сервер работает. Открыть <a href="/api/rooms">/api/rooms</a>.</p>
+  <h1>Система бронирования переговорных</h1>
+
+  <div class="card">
+    <h2>Новая бронь</h2>
+
+    <div id="message" class="msg hidden"></div>
+
+    <form id="booking-form">
+      <label>
+        Комната
+        <select name="roomId" required></select>
+      </label>
+
+      <label>
+        Пользователь
+        <select name="userId" required></select>
+      </label>
+
+      <label>
+        Начало
+        <input type="datetime-local" name="startTime" required step="60">
+      </label>
+
+      <label>
+        Окончание
+        <input type="datetime-local" name="endTime" required step="60">
+      </label>
+
+      <label class="full">
+        Тема встречи
+        <input type="text" name="topic" required maxlength="200" placeholder="Например, планирование спринта">
+      </label>
+
+      <button type="submit" id="submit-btn">Создать</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Существующие брони</h2>
+    <div id="bookings-container"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
