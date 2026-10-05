@@ -138,3 +138,12 @@ tr:hover {
     border-radius: 10px;
     font-size: 12px;
 }
+
+.btn-cancel {
+    background-color: red;
+    border: darkred;
+}
+
+.btn-cancel:hover {
+    background-color: darkred;
+}

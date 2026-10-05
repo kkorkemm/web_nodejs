@@ -80,6 +80,7 @@ async function loadBookings() {
         <td>${fmt(b.start_time)}</td>
         <td>${fmt(b.end_time)}</td>
         <td>${escapeHtml(b.topic)}</td>
+        <td><button class="btn-cancel" data-id="${b.id}">Отменить</button></td>
     </tr>
     `).join('');
 
@@ -89,11 +90,16 @@ async function loadBookings() {
         <tr>
             <th>ID</th><th>Комната</th><th>Кто</th>
             <th>Начало</th><th>Конец</th><th>Тема</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>${rows}</tbody>
     </table>
     `;
+
+    container.querySelectorAll('.btn-cancel').forEach((btn) => {
+        btn.onclick = () => cancelBooking(Number(btn.dataset.id));
+    });
 }
 
 function escapeHtml(s) {
@@ -158,6 +164,20 @@ async function createBooking(ev) {
     btn.disabled = false;
     }
 }
+
+/** Отмена брони */
+async function cancelBooking(id) {
+    if (!confirm(`Отменить бронь #${id}?`)) return;
+    hideMessage();
+    try {
+    await api('/api/bookings/' + id, { method: 'DELETE' });
+    showMessage(`Бронь #${id} отменена`, 'ok');
+    await loadBookings();
+    } catch (e) {
+    showMessage(`Не удалось отменить: ${e.message}`, 'error');
+    }
+}
+
 (async function main() {
     presetTimes();
     try {

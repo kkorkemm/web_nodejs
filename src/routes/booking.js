@@ -94,4 +94,16 @@ router.post('/', (req, res) => {
   res.status(201).json(created);
 });
 
+const deleteBooking = db.prepare('DELETE FROM bookings WHERE id = ?');
+
+// DELETE /api/bookings/:id : отменить бронь
+router.delete('/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const booking = selectBookingFull.get(id);
+  if (!booking) return res.status(404).json({ error: 'Бронь не найдена' });
+
+  deleteBooking.run(id);
+  res.json({ ok: true, cancelled: booking });
+});
+
 module.exports = router;
