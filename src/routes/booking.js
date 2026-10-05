@@ -1,6 +1,7 @@
 const express = require('express');
 const { randomUUID } = require('crypto');
 const db = require('../db');
+const ws = require('../ws');
 
 const router = express.Router();
 
@@ -190,6 +191,15 @@ router.post('/', (req, res) => {
       slots,
       topic:  String(topic),
     });
+
+    ws.broadcast({
+      type: 'booking:created',
+      payload: {
+        seriesId: result.seriesId,
+        bookings: result.bookings,
+      },
+    });
+
     res.status(201).json(result);
   } catch (e) {
     if (e.status === 409) {
@@ -208,6 +218,15 @@ router.delete('/series/:seriesId', (req, res) => {
     return res.status(404).json({ error: 'Серия не найдена' });
   }
   deleteSeries.run(seriesId);
+
+  ws.broadcast({
+    type: 'booking:series-cancelled',
+    payload: {
+      seriesId,
+      ids: rows.map((r) => r.id),
+    },
+  });
+  
   res.json({ ok: true, cancelledCount: rows.length, cancelled: rows });
 });
 
@@ -218,6 +237,12 @@ router.delete('/:id', (req, res) => {
   if (!booking) return res.status(404).json({ error: 'Бронь не найдена' });
 
   deleteBooking.run(id);
+
+  ws.broadcast({
+    type: 'booking:cancelled',
+    payload: { id, roomId: booking.room_id, seriesId: booking.series_id },
+  });
+
   res.json({ ok: true, cancelled: booking });
 });
 

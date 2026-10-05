@@ -1,5 +1,57 @@
 const $ = (sel) => document.querySelector(sel);
 
+let socket = null;
+
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const url = `${proto}${location.host}/ws`;
+
+  socket = new WebSocket(url);
+
+  socket.onopen = () => {
+    console.log('[ws] подключен');
+    updateWsStatus('connected');
+  };
+
+  socket.onclose = () => {
+    console.warn('[ws] неподключен, переподключение...');
+    updateWsStatus('disconnected');
+    setTimeout(connectWS, 2000);   // автопереподключение
+  };
+
+  socket.onerror = (e) => console.error('[ws] error', e);
+
+  socket.onmessage = (event) => {
+    let msg;
+    try { msg = JSON.parse(event.data); } catch { return; }
+
+    console.log('[ws] сообщение: ', msg);
+
+    switch (msg.type) {
+      case 'hello':
+        break;
+
+      case 'booking:created':
+      case 'booking:cancelled':
+      case 'booking:series-cancelled':
+        // любое изменение — перезагружаем таблицу
+        loadBookings();
+        break;
+
+      default:
+        console.warn('[ws] неизвестное событие:', msg.type);
+    }
+  };
+}
+
+function updateWsStatus(status) {
+  const el = document.getElementById('ws-status');
+  if (!el) return;
+  el.textContent = status === 'connected' ? 'онлайн' : 'оффлайн';
+  el.className = status === 'connected' ? 'ws-online' : 'ws-offline';
+}
+
+
 async function api(path, options = {}) {
     const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
@@ -197,10 +249,11 @@ async function cancelBooking(id) {
 
 (async function main() {
     presetTimes();
+    connectWS(); 
     try {
-    await loadRefs();
+        await loadRefs();
     } catch (e) {
-    showMessage('Не удалось загрузить справочники: ' + e.message, 'error');
+        showMessage('Не удалось загрузить справочники: ' + e.message, 'error');
     return;
     }
     await loadBookings();
