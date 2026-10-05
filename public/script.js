@@ -127,41 +127,58 @@ async function createBooking(ev) {
     const startLocal = fd.get('startTime');   // "YYYY-MM-DDTHH:MM" — локальное время браузера
     const endLocal   = fd.get('endTime');
 
+    const recType = fd.get('recurrenceType');
+
     const body = {
     roomId: Number(fd.get('roomId')),
     userId: Number(fd.get('userId')),
-    // new Date("YYYY-MM-DDTHH:MM") парсит как локальное время браузера,
-    // а toISOString() отдаёт UTC с 'Z' — так на сервер уйдёт однозначное время.
     startTime: new Date(startLocal).toISOString(),
     endTime:   new Date(endLocal).toISOString(),
     topic: fd.get('topic').trim(),
     };
 
+    if (recType !== 'none') {
+    body.recurrence = {
+        type: recType,
+        count: Number(fd.get('recurrenceCount')),
+    };
+    }
+
     const btn = $('#submit-btn');
     btn.disabled = true;
 
     try {
-    const created = await api('/api/bookings', {
+    const result = await api('/api/bookings', {
         method: 'POST',
         body: JSON.stringify(body),
     });
-    showMessage(`Бронь #${created.id} создана: ${created.room_name}, ${fmt(created.start_time)}`, 'ok');
+
+    const count = result.bookings.length;
+    const first = result.bookings[0];
+
+    if (count === 1) {
+        showMessage(`Бронь #${first.id} создана: ${first.room_name}, ${fmt(first.start_time)}`, 'ok');
+    } else {
+        showMessage(
+        `Серия из ${count} броней создана: ${first.room_name}, начиная с ${fmt(first.start_time)}`,
+        'ok'
+        );
+    }
+
     ev.target.reset();
     presetTimes();
     await loadBookings();
-    } catch (e) {
-    if (e.status === 409 && e.conflicts) {
-        const lines = e.conflicts.map((c) =>
-        `• ${fmt(c.start_time)} – ${fmt(c.end_time)} (${c.topic}, ${c.user_name})`
-        ).join('\n');
-        showMessage(`${e.message}:\n${lines}`, 'error');
-    } else if (e.details) {
-        showMessage(`${e.message}\n${e.details.map((d) => '• ' + d).join('\n')}`, 'error');
-    } else {
-        showMessage(e.message, 'error');
-    }
-    } finally {
-    btn.disabled = false;
+    } catch (e) {   
+        if (e.status === 409 && e.conflicts) {
+            const lines = e.conflicts.map((c) =>
+            `• ${fmt(c.slot.start)} – ${fmt(c.slot.end)} конфликтует с бронью "${c.busy[0].topic}" (${c.busy[0].user_name})`
+            ).join('\n');
+            showMessage(`${e.message}:\n${lines}`, 'error');
+        } else if (e.details) {
+            showMessage(`${e.message}\n${e.details.map((d) => '• ' + d).join('\n')}`, 'error');
+        } else {
+            showMessage(e.message, 'error');
+        }
     }
 }
 

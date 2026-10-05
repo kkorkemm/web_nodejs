@@ -40,6 +40,20 @@
         <input type="text" name="topic" required maxlength="200" placeholder="Например, планирование спринта">
       </label>
 
+      <label>
+        Повтор
+        <select name="recurrenceType">
+          <option value="none">Без повтора</option>
+          <option value="daily">Ежедневно</option>
+          <option value="weekly">Еженедельно</option>
+        </select>
+      </label>
+
+      <label>
+        Количество повторов
+        <input type="number" name="recurrenceCount" value="4" min="1" max="60">
+      </label>
+
       <button type="submit" id="submit-btn">Создать</button>
     </form>
   </div>
