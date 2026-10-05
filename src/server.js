@@ -1,4 +1,6 @@
 require('dotenv').config();
+const swaggerUi = require('swagger-ui-express');
+const openapiSpec = require('./openapi');
 const http = require('http');
 const path = require('path');
 const express = require('express');
@@ -10,6 +12,14 @@ const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Swagger UI на /docs
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec, {
+  customSiteTitle: 'API системы бронирования',
+  swaggerOptions: { persistAuthorization: true },
+}));
+
+app.get('/openapi.json', (_req, res) => res.json(openapiSpec));
 
 app.use('/api/rooms',    require('./routes/room'));
 app.use('/api/users',    require('./routes/user'));
