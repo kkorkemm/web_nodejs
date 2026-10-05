@@ -1,9 +1,15 @@
+require('dotenv').config();
+
 const path = require('path');
+const fs = require('fs');
 const Database = require('better-sqlite3');
 
-const DB_PATH = path.join(__dirname, '..', 'data.db');
+const DB_PATH = process.env.DB_PATH || './data.db';
+const ABS_DB_PATH = path.resolve(DB_PATH);
 
-const db = new Database(DB_PATH);
+fs.mkdirSync(path.dirname(ABS_DB_PATH), { recursive: true });
+
+const db = new Database(ABS_DB_PATH);
 db.pragma('journal_mode = WAL');   // параллельное чтение при записи
 db.pragma('foreign_keys = ON');    // включаем проверку внешних ключей
 

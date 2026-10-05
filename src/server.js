@@ -1,3 +1,4 @@
+require('dotenv').config();
 const http = require('http');
 const path = require('path');
 const express = require('express');
@@ -28,8 +29,10 @@ app.use((err, _req, res, _next) => {
 const server = http.createServer(app);
 ws.init(server);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`HTTP:      http://localhost:${PORT}`);
   console.log(`WebSocket: ws://localhost:${PORT}/ws`);
+  console.log(`DB path:   ${process.env.DB_PATH || './data.db'}`);
+  console.log(`Env:       ${process.env.NODE_ENV || 'development'}`);
 });

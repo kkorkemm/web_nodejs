@@ -28,19 +28,50 @@ function connectWS() {
     console.log('[ws] сообщение: ', msg);
 
     switch (msg.type) {
-      case 'hello':
-        break;
+        case 'hello':
+            break;
 
-      case 'booking:created':
-      case 'booking:cancelled':
-      case 'booking:series-cancelled':
-        // любое изменение — перезагружаем таблицу
-        loadBookings();
-        break;
+        case 'booking:created': {
+            const b = msg.payload.bookings[0];
+            const count = msg.payload.bookings.length;
 
-      default:
-        console.warn('[ws] неизвестное событие:', msg.type);
-    }
+            if (count === 1) {
+            showToast({
+                variant: 'created',
+                title: 'Новая бронь',
+                lines: [
+                `${escapeHtml(b.room_name)} · ${fmt(b.start_time)}–${fmt(b.end_time)}`,
+                `<span class="who">${escapeHtml(b.user_name)}</span>: ${escapeHtml(b.topic)}`,
+                ],
+            });
+            } else {
+            showToast({
+                variant: 'created',
+                title: `Создана серия из ${count} броней`,
+                lines: [
+                `${escapeHtml(b.room_name)} · начиная с ${fmt(b.start_time)}`,
+                `<span class="who">${escapeHtml(b.user_name)}</span>: ${escapeHtml(b.topic)}`,
+                ],
+            });
+            }
+            loadBookings();
+            break;
+        }
+
+        case 'booking:cancelled': {
+            const { id, seriesId } = msg.payload;
+            showToast({
+            variant: 'cancelled',
+            title: 'Бронь отменена',
+            lines: [`Бронь #${id}${seriesId ? ' (часть серии)' : ''}`],
+            });
+            loadBookings();
+            break;
+        }
+
+        default:
+            console.warn('[ws]:', msg.type);
+        }
   };
 }
 
@@ -49,6 +80,39 @@ function updateWsStatus(status) {
   if (!el) return;
   el.textContent = status === 'connected' ? 'онлайн' : 'оффлайн';
   el.className = status === 'connected' ? 'ws-online' : 'ws-offline';
+}
+
+/** Показать всплывающее уведомление */
+function showToast({ variant, title, lines, onClick }) {
+  const container = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${variant}`;
+
+  el.innerHTML = `
+    <div class="title">${escapeHtml(title)}</div>
+    ${lines.map((l) => `<div class="row">${l}</div>`).join('')}
+  `;
+
+  el.onclick = () => {
+    if (onClick) onClick();
+    removeToast(el);
+  };
+
+  container.appendChild(el);
+
+  // Ограничиваем стек 5 тостами
+  while (container.children.length > 5) {
+    container.removeChild(container.firstChild);
+  }
+
+  // Автозакрытие через 5 секунд
+  setTimeout(() => removeToast(el), 5000);
+}
+
+function removeToast(el) {
+  if (!el.parentNode) return;
+  el.classList.add('hide');
+  setTimeout(() => el.remove(), 200);
 }
 
 

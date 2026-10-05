@@ -53,15 +53,15 @@ input, select, button {
 }
 
 input:focus, select:focus { 
-    outline: 2px solid #4a90e2; 
-    border-color: #4a90e2; 
+    outline: 2px solid skyblue; 
+    border-color: skyblue; 
 }
 
 button {
     cursor: pointer;
-    background: #4a90e2;
+    background: skyblue;
     color: #fff;
-    border-color: #4a90e2;
+    border-color: skyblue;
     padding: 8px 16px;
     font-weight: 500;
     grid-column: 1 / -1;
@@ -69,7 +69,7 @@ button {
 }
 
 button:hover { 
-    background: #357abd; 
+    background: lightseagreen; 
 }
 
 button:disabled { 
@@ -85,19 +85,19 @@ table {
 }
 
 th, td {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid lightgray;
     padding: 8px 6px;
     text-align: left;
     vertical-align: top;
 }
 
 th {
-    background: #f5f5f5; 
+    background: lightgray; 
     font-weight: 600; 
 }
 
 tr:hover { 
-    background: #fafafa; 
+    background: lightgray; 
 }
 
 .msg {
@@ -109,15 +109,15 @@ tr:hover {
 }
 
 .msg.error { 
-    background: #fde8e8; 
-    border: 1px solid #f5c2c2; 
-    color: #8a1c1c; 
+    background: lightgray; 
+    border: 1px solid lightsalmon; 
+    color: darkred; 
 }
 
 .msg.ok { 
     background: #e6f5ea;
-    border: 1px solid #b8dfc2; 
-    color: #1c5f2c; 
+    border: 1px solid lightgreen; 
+    color: darkgreen; 
 }
 
 .msg.hidden { 
@@ -146,4 +146,62 @@ tr:hover {
 
 .btn-cancel:hover {
     background-color: darkred;
+}
+
+/* Уведомления */
+#toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 360px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  padding: 12px 14px 12px 18px;
+  border-left: 4px solid #999;
+  font-size: 14px;
+  line-height: 1.4;
+  animation: toast-in .25s ease-out;
+  cursor: pointer;
+}
+.toast:hover { box-shadow: 0 6px 20px rgba(0,0,0,.22); }
+
+.toast.created { border-left-color: lightgreen; }
+.toast.cancelled { border-left-color: salmon; }
+.toast.series { border-left-color: salmon; }
+
+.toast .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #222;
+}
+.toast .row {
+  color: #555;
+  font-size: 13px;
+}
+.toast .who {
+  font-weight: 500;
+  color: skyblue;
+}
+
+.toast.hide {
+  animation: toast-out .2s ease-in forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(30px); }
 }
