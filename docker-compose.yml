@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: meeting-rooms-app
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      DB_PATH: /app/data/data.db
+      NODE_ENV: production
+    volumes:
+      - app-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  app-data:

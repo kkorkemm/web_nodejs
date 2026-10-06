@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log*
+data.db
+data.db-wal
+data.db-shm
+data/
+.env
+.git
+.gitignore
+.vscode
+.idea
+*.md
+postman/
+scripts/
