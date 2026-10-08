@@ -36,7 +36,7 @@
 Требуется установленный Docker Desktop.
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/kkorkemm/web_nodejs.git
 cd web_nodejs
 cp .env.example .env
 docker compose up --build

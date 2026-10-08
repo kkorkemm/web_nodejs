@@ -296,6 +296,7 @@ async function createBooking(ev) {
             showMessage(e.message, 'error');
         }
     }
+    finally { btn.disabled = false; }
 }
 
 /** Отмена брони */
